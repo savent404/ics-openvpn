@@ -69,7 +69,8 @@ public class MainActivity extends BaseActivity {
         if (isDirectToTV())
             mPagerAdapter.addTab(R.string.openvpn_log, LogFragment.class);
 
-        mPagerAdapter.addTab(R.string.about, AboutFragment.class);
+        // Add About Fragment
+        //mPagerAdapter.addTab(R.string.about, AboutFragment.class);
         mPager.setAdapter(mPagerAdapter);
 
         mTabs = (TabBarView) findViewById(R.id.sliding_tabs);
