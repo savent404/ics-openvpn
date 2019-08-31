@@ -56,7 +56,8 @@ public class MainActivity extends BaseActivity {
 
 
         mPagerAdapter.addTab(R.string.vpn_list_title, VPNProfileList.class);
-        mPagerAdapter.addTab(R.string.graph, GraphFragment.class);
+        // Graph Fragment
+        // mPagerAdapter.addTab(R.string.graph, GraphFragment.class);
 
         mPagerAdapter.addTab(R.string.generalsettings, GeneralSettings.class);
         // FAQ. Fragment
