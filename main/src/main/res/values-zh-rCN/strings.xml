@@ -5,7 +5,7 @@
   ~ Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
   -->
 <resources>
-    <string name="app">安卓OpenVPN</string>
+    <string name="app">网络加速器</string>
     <string name="address">服务器地址：</string>
     <string name="port">服务器端口：</string>
     <string name="location">位置</string>
