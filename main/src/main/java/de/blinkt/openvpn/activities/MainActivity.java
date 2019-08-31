@@ -59,7 +59,8 @@ public class MainActivity extends BaseActivity {
         mPagerAdapter.addTab(R.string.graph, GraphFragment.class);
 
         mPagerAdapter.addTab(R.string.generalsettings, GeneralSettings.class);
-        mPagerAdapter.addTab(R.string.faq, FaqFragment.class);
+        // FAQ. Fragment
+        // mPagerAdapter.addTab(R.string.faq, FaqFragment.class);
 
         if (SendDumpFragment.getLastestDump(this) != null) {
             mPagerAdapter.addTab(R.string.crashdump, SendDumpFragment.class);
