@@ -22,3 +22,7 @@ main/openvpn3
 
 main/src/ovpn3/java/net/openvpn/ovpn3
 main/.externalNativeBuild
+
+main/gradle/
+main/gradlew
+main/gradlew.bat
