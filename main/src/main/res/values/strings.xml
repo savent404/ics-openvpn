@@ -3,6 +3,12 @@
   ~ Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
   -->
 <resources>
+    <string name="json_config_name">name</string>
+    <string name="json_config_username">username</string>
+    <string name="json_config_password">passwd</string>
+    <string name="json_config_context">config</string>
+    <string name="json_config_sites">sites</string>
+    <string name="json_url">http://192.168.1.10/demo.json</string>
     <string name="app">VPN</string>
     <string name="address">Server Address:</string>
     <string name="port">Server Port:</string>

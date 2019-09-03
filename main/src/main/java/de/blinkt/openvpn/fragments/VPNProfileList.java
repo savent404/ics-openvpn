@@ -17,9 +17,12 @@ import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
+import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.os.PersistableBundle;
 import android.support.annotation.RequiresApi;
 import android.text.Html;
@@ -37,6 +40,20 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.ref.WeakReference;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -74,6 +91,12 @@ public class VPNProfileList extends ListFragment implements OnClickListener, Vpn
     private static final int MENU_CHANGE_SORTING = Menu.FIRST + 2;
     private static final String PREF_SORT_BY_LRU = "sortProfilesByLRU";
     private String mLastStatusMessage;
+
+    private static boolean mNeedUpdateRemoteConfigs = true;
+    private static JSONObject mJsonConfig = null;
+
+
+    private Handler jsonHandler = new JsonHandler(this);
 
     @Override
     public void updateState(String state, String logmessage, final int localizedResId, ConnectionStatus level) {
@@ -154,8 +177,149 @@ public class VPNProfileList extends ListFragment implements OnClickListener, Vpn
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
+        // update once
+        if (mNeedUpdateRemoteConfigs) {
+            mNeedUpdateRemoteConfigs = false;
+            updateRemoteConfig();
+        }
     }
 
+    /**
+     * @brief Wait for download json file, then parser json & add profile
+     * @note  this is a static class, so there is no leek risk.
+     */
+    private static class JsonHandler extends Handler {
+        private final WeakReference<VPNProfileList> mActivty;
+        public JsonHandler (VPNProfileList activity) {
+            mActivty = new WeakReference<>(activity);
+        }
+        private void startConfigImport(VPNProfileList activity, Uri uri) {
+            Intent startImport = new Intent(activity.getActivity(), ConfigConverter.class);
+            startImport.setAction(ConfigConverter.IMPORT_PROFILE);
+            startImport.setData(uri);
+            activity.startActivityForResult(startImport, IMPORT_PROFILE);
+        }
+        private File createTmpProfile(VPNProfileList activity, String name, String config) {
+            File tf = null;
+            try {
+                tf = new File(activity.getActivity().getExternalCacheDir(), name + ".ovpn");
+                OutputStream os = new FileOutputStream(tf);
+                os.write(config.getBytes(Charset.forName("utf-8")));
+                os.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return tf;
+        }
+        @Override
+        public void handleMessage(Message msg) {
+
+            VPNProfileList activity = mActivty.get();
+            super.handleMessage(msg);
+            if (activity == null)
+                return;
+
+            Bundle data = msg.getData();
+            String json = data.getString("json");
+            ProfileManager pm = ProfileManager.getInstance(activity.getActivity());
+            try {
+                activity.mJsonConfig = new JSONObject(json);
+                JSONArray arr = activity.mJsonConfig
+                        .getJSONArray(activity.getString(R.string.json_config_sites));
+                for (int i = 0; i < arr.length(); i++) {
+                    try {
+                        JSONObject obj = arr.getJSONObject(i);
+                        StringBuilder configBuilder = new StringBuilder("");
+                        String profileName = obj.getString(
+                                activity.getString((R.string.json_config_name)));
+                        JSONArray configs = obj.getJSONArray(
+                                activity.getString(R.string.json_config_context));
+                        if (configs == null)
+                            continue;
+                        for (int line = 0; line < configs.length(); line++) {
+                            String context = configs.getString(line);
+                            configBuilder.append(context);
+                            configBuilder.append('\n');
+                        }
+                        String config = configBuilder.toString();
+
+                        File tmpProfile = createTmpProfile(activity, profileName, config);
+                        VpnProfile vp = null;
+                        if ((vp = pm.getProfileByName(profileName)) != null) {
+                            pm.removeProfile(activity.getActivity(), vp);
+                        }
+                        startConfigImport(activity, Uri.fromFile(tmpProfile));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * @brief download json & send json context to JsonHandler(jsonHandler)
+     */
+    private Runnable downloadJsonTask = () -> {
+        byte[] buffer = null;
+        // mute the error
+        TrafficStats.setThreadStatsTag(1000);
+        try {
+            URL url = new URL(getString(R.string.json_url));
+            BufferedInputStream inputStream = new BufferedInputStream(url.openStream());
+            File tmp = File.createTempFile("config", null, getActivity().getCacheDir());
+            OutputStream outputStream = new FileOutputStream(tmp);
+            buffer = new byte[1024];
+            int len = 0;
+            while ((len = inputStream.read(buffer, 0, 1024)) > 0) {
+                outputStream.write(buffer, 0, len);
+            }
+            inputStream.close();
+            outputStream.close();
+
+            InputStream is = new FileInputStream(tmp);
+            buffer = new byte[is.available()];
+            is.read(buffer);
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (buffer != null) {
+            Message msg = new Message();
+            Bundle data = new Bundle();
+            data.putString("json", new String(buffer));
+            msg.setData(data);
+            jsonHandler.sendMessage(msg);
+        }
+    };
+    private void updateRemoteConfig() {
+        new Thread(downloadJsonTask).start();
+    }
+
+    /**
+     * @brief auto fill username & password for new added profile
+     * @note callback for startConfigImport
+     * @param vp new added profile
+     */
+    private  void addProfileCallback(VpnProfile vp) {
+        try {
+            JSONArray sites = mJsonConfig.getJSONArray(getString(R.string.json_config_sites));
+            for (int i = 0; i < sites.length(); i++) {
+                if (vp.mName.equals((sites.getJSONObject(i).getString(getString(R.string.json_config_name))))) {
+                    vp.mUsername = sites.getJSONObject(i).getString(getString(R.string.json_config_username));
+                    vp.mPassword = sites.getJSONObject(i).getString(getString(R.string.json_config_password));
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        getPM().saveProfileList(getActivity());
+        getPM().saveProfile(getActivity(), vp);
+    }
 
     // Shortcut version is increased to refresh all shortcuts
     final static int SHORTCUT_VERSION = 1;
@@ -598,6 +762,8 @@ public class VPNProfileList extends ListFragment implements OnClickListener, Vpn
             startConfigImport(uri);
         } else if (requestCode == IMPORT_PROFILE) {
             String profileUUID = data.getStringExtra(VpnProfile.EXTRA_PROFILEUUID);
+            VpnProfile vp = ProfileManager.get(getActivity(), profileUUID);
+            addProfileCallback(vp);
             mArrayadapter.add(ProfileManager.get(getActivity(), profileUUID));
         } else if (requestCode == FILE_PICKER_RESULT_KITKAT) {
             if (data != null) {
