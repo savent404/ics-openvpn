@@ -3,6 +3,11 @@
   ~ Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
   -->
 <resources>
+    <string name="license_url">http://192.168.1.10:7021/</string>
+    <string name="check_license_ok">check license ok</string>
+    <string name="check_license_error">check license error</string>
+    <string name="input_license">Input License</string>
+    <string name="bt_check_license">Check License</string>
     <string name="json_config_name">name</string>
     <string name="json_config_username">username</string>
     <string name="json_config_password">passwd</string>

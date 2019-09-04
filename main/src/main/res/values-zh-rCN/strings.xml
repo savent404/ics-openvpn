@@ -5,6 +5,10 @@
   ~ Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
   -->
 <resources>
+    <string name="check_license_ok">验证邀请码成功</string>
+    <string name="check_license_error">邀请码验证失败</string>
+    <string name="input_license">验证码</string>
+    <string name="bt_check_license">验证邀请码</string>
     <string name="app">网络加速器</string>
     <string name="address">服务器地址：</string>
     <string name="port">服务器端口：</string>
