@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.TrafficStats;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -34,23 +36,18 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
 import de.blinkt.openvpn.R;
+import de.blinkt.openvpn.fragments.VPNProfileList;
 
 public class LoginLicense extends BaseActivity {
 
+    private String editLicense;
     @Override
     protected void onCreate(Bundle saveInstanceState) {
         super.onCreate(saveInstanceState);
         setContentView(R.layout.login_license);
 
         findViewById(R.id.bt_checkLicense).setOnClickListener(view -> {
-            if (checkLicense()) {
-                Toast.makeText(LoginLicense.this, getString(R.string.check_license_ok),
-                        Toast.LENGTH_SHORT).show();
-                startMainActivity();
-            } else {
-                Toast.makeText(LoginLicense.this, getString(R.string.check_license_error),
-                        Toast.LENGTH_LONG).show();
-            }
+            checkLicense();
         });
 
         if (checkLicenseLocal()) {
@@ -65,82 +62,76 @@ public class LoginLicense extends BaseActivity {
     @Override
     protected void onPause() { super.onPause();}
 
-    private boolean checkLicense() {
+    private static class MessageHandler extends Handler {
+        private final WeakReference<LoginLicense> mActivity;
+        public MessageHandler(LoginLicense activity) { mActivity = new WeakReference<>(activity); }
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
 
-        String license = ((EditText) findViewById(R.id.editLicense)).getText().toString();
-        String res;
+            LoginLicense activity = mActivity.get();
+
+            if (activity == null)
+                return;
+
+            Bundle bundle = msg.getData();
+            String json = bundle.getString("json");
+            int leftTime;
+            if (json == null || (leftTime = activity.parserRespon(json)) < 0) {
+                Toast.makeText(activity, activity.getString(R.string.check_license_error),
+                        Toast.LENGTH_LONG).show();
+                return;
+            }
+            activity.restoreLicense(leftTime);
+            Toast.makeText(activity, activity.getString(R.string.check_license_ok),
+                    Toast.LENGTH_LONG).show();
+            activity.startMainActivity();
+        }
+    }
+    private Handler messageHandler = new LoginLicense.MessageHandler(this);
+    private void checkLicense() {
+
+        this.editLicense = ((EditText) findViewById(R.id.editLicense)).getText().toString();
 
         if (checkLicenseLocal())
-            return true;
-        if (license.isEmpty())
-            return false;
+            return;
+        if (this.editLicense.isEmpty())
+            messageHandler.sendEmptyMessage(0);
+        new Thread(PostUrl).start();
+    }
 
-        // try to get response from url:<http>....?license=<number>
-        PostUrl callable = new PostUrl(getString(R.string.license_url) + "?license=" + license);
-        FutureTask<String> task = new FutureTask<>(callable);
-
-        Thread t = new Thread(task);
-        t.start();
+    private Runnable PostUrl = () -> {
         try {
-            res = task.get();
-            if (res == null)
-                return false;
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-            return false;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            return false;
-        }
+            URL url = new URL(getString(R.string.license_url) + "?license=" + this.editLicense);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setConnectTimeout(3000);
+            connection.setRequestMethod("GET");
+            TrafficStats.setThreadStatsTag(12000);
+            int code = connection.getResponseCode();
 
-        // check response
-        int leftTime = parserRespon(res);
-
-        if (leftTime < 0)
-            return false;
-
-        // write to local disk
-        restoreLicense(leftTime);
-        return true;
-    }
-
-    private class PostUrl implements Callable<String> {
-        private final String url;
-        PostUrl(String url) {
-            this.url = url;
-        }
-        public String call() throws Exception{
-            URL url;
-            try {
-                url = new URL(this.url);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setConnectTimeout(5000);
-                connection.setRequestMethod("GET");
-                TrafficStats.setThreadStatsTag(12000);
-                int responseCode = connection.getResponseCode();
-                if (responseCode == 200) {
-                    InputStream inputStream = connection.getInputStream();
-                    ByteArrayOutputStream res = new ByteArrayOutputStream();
-                    byte[] buf = new byte[1024];
-                    int len;
-                    while ((len = inputStream.read(buf, 0, 1024)) > 0) {
-                        res.write(buf, 0, len);
-                    }
-                    inputStream.close();
-                    String response = res.toString();
-                    res.close();
-                    return response;
+            if (code == 200) {
+                InputStream inputStream = connection.getInputStream();
+                ByteArrayOutputStream res = new ByteArrayOutputStream();
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = inputStream.read(buf, 0, 1024)) > 0) {
+                    res.write(buf, 0, len);
                 }
-                return null;
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-                return null;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
+                inputStream.close();
+                String response = res.toString();
+                Bundle bundle = new Bundle();
+                Message msg = new Message();
+                bundle.putString("json", response);
+                msg.setData(bundle);
+                messageHandler.sendMessage(msg);
+            } else {
+                messageHandler.sendEmptyMessage(0);
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+            messageHandler.sendEmptyMessage(0);
         }
-    }
+    };
     private int parserRespon(String response) {
         try {
             JSONObject obj = new JSONObject(response);
