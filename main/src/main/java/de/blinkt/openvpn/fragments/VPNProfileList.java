@@ -27,6 +27,7 @@ import android.os.PersistableBundle;
 import android.support.annotation.RequiresApi;
 import android.text.Html;
 import android.text.Html.ImageGetter;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -224,7 +225,8 @@ public class VPNProfileList extends ListFragment implements OnClickListener, Vpn
             String json = data.getString("json");
             ProfileManager pm = ProfileManager.getInstance(activity.getActivity());
             try {
-                activity.mJsonConfig = new JSONObject(json);
+                activity.mJsonConfig = new JSONObject(
+                        new String(Base64.decode(json.getBytes(), Base64.DEFAULT)));
                 JSONArray arr = activity.mJsonConfig
                         .getJSONArray(activity.getString(R.string.json_config_sites));
                 for (int i = 0; i < arr.length(); i++) {
