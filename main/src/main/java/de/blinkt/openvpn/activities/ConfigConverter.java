@@ -761,6 +761,8 @@ public class ConfigConverter extends BaseActivity implements FileSelectCallback,
                     mProfilename.setText(mResult.getName());
 
                     log(R.string.import_done);
+
+                    userActionSaveProfile();
                 }
             }
         }.execute();
