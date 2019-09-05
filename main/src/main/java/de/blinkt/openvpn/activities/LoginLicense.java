@@ -193,6 +193,8 @@ public class LoginLicense extends BaseActivity {
     }
     private void startMainActivity() {
         Intent intent = new Intent(getApplication(), MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setClass(LoginLicense.this, MainActivity.class);
         startActivity(intent);
     }
 }
