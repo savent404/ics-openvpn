@@ -70,6 +70,8 @@ public class LoginLicense extends BaseActivity {
         String license = ((EditText) findViewById(R.id.editLicense)).getText().toString();
         String res;
 
+        if (checkLicenseLocal())
+            return true;
         if (license.isEmpty())
             return false;
 
