@@ -82,7 +82,7 @@ public class LoginLicense extends BaseActivity {
                         Toast.LENGTH_LONG).show();
                 return;
             }
-            else if (msg.what == 0 || json == null || (leftTime = activity.parserRespon(json)) < 0) {
+            else if (json == null || (leftTime = activity.parserRespon(json)) < 0) {
                 Toast.makeText(activity, activity.getString(R.string.check_license_error),
                         Toast.LENGTH_LONG).show();
                 return;
