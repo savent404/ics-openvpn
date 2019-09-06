@@ -95,8 +95,10 @@ public class LoginLicense extends BaseActivity {
 
         if (checkLicenseLocal())
             return;
-        if (this.editLicense.isEmpty())
+        if (this.editLicense.isEmpty()) {
             messageHandler.sendEmptyMessage(0);
+            return;
+        }
         new Thread(PostUrl).start();
     }
 
