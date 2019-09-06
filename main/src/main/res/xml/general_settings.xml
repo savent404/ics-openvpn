@@ -18,9 +18,9 @@
             android:defaultValue="false"
             android:key="ovpn3"
             android:disableDependentsState="true"
-            android:summaryOn="Use the C++ OpenVPN library (experimental)"
-            android:summaryOff="Use OpenVPN 2.x"
-            android:title="OpenVPN 3 Core"/>
+            android:summaryOn="@string/ovpn3_summary_on"
+            android:summaryOff="@string/ovpn3_summary_off"
+            android:title="@string/ovpn3_title"/>
 
 
         <de.blinkt.openvpn.views.DefaultVPNListPreference

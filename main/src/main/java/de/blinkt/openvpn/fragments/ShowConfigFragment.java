@@ -51,13 +51,15 @@ public class ShowConfigFragment extends Fragment {
 		new Thread() {
 			public void run() {
 				/* Add a few newlines to make the textview scrollable past the FAB */
-				try {
+				// try {
 
-					configtext = vp.getConfigFile(getActivity(), VpnProfile.doUseOpenVPN3(getActivity())) + "\n\n\n";
-				} catch (Exception e) {
-					e.printStackTrace();
-					configtext = "Error generating config file: " + e.getLocalizedMessage();
-				}
+				// 	configtext = vp.getConfigFile(getActivity(), VpnProfile.doUseOpenVPN3(getActivity())) + "\n\n\n";
+				// } catch (Exception e) {
+				// 	e.printStackTrace();
+				// 	configtext = "Error generating config file: " + e.getLocalizedMessage();
+				// }
+				// TODO: not allowed show this config file
+				configtext = "";
 				getActivity().runOnUiThread(() -> {
                     cv.setText(configtext);
 					if (mfabButton!=null)

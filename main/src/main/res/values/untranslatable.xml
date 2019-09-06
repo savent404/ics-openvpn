@@ -11,10 +11,6 @@
         &lt;helbeierling@t-online.de>
     </string>
 
-    <string name="opevpn_copyright" translatable="false">Copyright © 2002–2010 OpenVPN Technologies, Inc. &lt;sales@openvpn.net>\n
-
-        "OpenVPN" is a trademark of OpenVPN Technologies, Inc.\n
-    </string>
     <string name="defaultserver" translatable="false">openvpn.uni-paderborn.de</string>
     <string name="defaultport" translatable="false">1194</string>
     <string name="copyright_file_dialog" translatable="false">File Dialog based on work by Alexander Ponomarev</string>
@@ -26,7 +22,7 @@
         This product includes cryptographic software written by Eric Young (eay@cryptsoft.com)\n
         Copyright © 1995-1998 Eric Young (eay@cryptsoft.com) All rights reserved.
     </string>
-    <string name="openvpn" translatable="false">OpenVPN</string>
+    <string name="openvpn">OpenVPN</string>
     <string name="file_dialog" translatable="false">File Dialog</string>
     <string name="lzo" translatable="false">LZO</string>
     <string name="openssl" translatable="false">OpenSSL</string>
