@@ -77,7 +77,12 @@ public class LoginLicense extends BaseActivity {
             Bundle bundle = msg.getData();
             String json = bundle.getString("json");
             int leftTime;
-            if (json == null || (leftTime = activity.parserRespon(json)) < 0) {
+            if (msg.what == 1) {
+                Toast.makeText(activity, activity.getString(R.string.check_license_neterror),
+                        Toast.LENGTH_LONG).show();
+                return;
+            }
+            else if (msg.what == 0 || json == null || (leftTime = activity.parserRespon(json)) < 0) {
                 Toast.makeText(activity, activity.getString(R.string.check_license_error),
                         Toast.LENGTH_LONG).show();
                 return;
@@ -131,7 +136,7 @@ public class LoginLicense extends BaseActivity {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            messageHandler.sendEmptyMessage(0);
+            messageHandler.sendEmptyMessage(1);
         }
     };
     private int parserRespon(String response) {

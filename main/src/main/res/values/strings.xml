@@ -3,6 +3,7 @@
   ~ Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
   -->
 <resources>
+    <string name="check_license_neterror">network error</string>
     <string name="license_url">http://192.168.1.10:7021/</string>
     <string name="check_license_ok">check license ok</string>
     <string name="check_license_error">check license error</string>

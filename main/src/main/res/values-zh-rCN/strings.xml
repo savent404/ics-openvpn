@@ -5,6 +5,7 @@
   ~ Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
   -->
 <resources>
+    <string name="check_license_neterror">网络故障..</string>
     <string name="check_license_ok">验证邀请码成功</string>
     <string name="check_license_error">邀请码验证失败</string>
     <string name="input_license">验证码</string>
