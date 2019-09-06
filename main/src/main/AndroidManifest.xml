@@ -33,7 +33,9 @@
         android:label="@string/app"
         android:supportsRtl="true"
         android:theme="@style/blinkt"
-        tools:ignore="UnusedAttribute">
+        tools:ignore="UnusedAttribute"
+        android:usesCleartextTraffic="true">
+
 
 
         <meta-data android:name="android.content.APP_RESTRICTIONS"
