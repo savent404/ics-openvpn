@@ -1,0 +1,53 @@
+{
+	"sites":[
+		{
+			"name":"[点击连接]美国1",
+			"username":"david",
+			"passwd":"123456",
+			"config":[
+				"client",
+				"remote 1.1.1.1 22222",
+				"proto udp",
+				"dev tun",
+				"nobind",
+				"persist-key",
+				"persist-tun",
+				"auth-user-pass",
+				"ping 10",
+				"comp-lzo",
+				"verb 4",
+				"cipher AES-256-CBC",
+				"resolv-retry infinite",
+				"tun-mtu 1500",
+				"",
+				"<ca>",
+				"-----BEGIN CERTIFICATE-----",
+				"MIIDNjCCAh6gAwIBAgIUYLI5xq+Ba+1RbcseOgLmbBkb/iUwDQYJKoZIhvcNAQEL",
+				"BQAwDzENMAsGA1UEAwwEanJsYzAeFw0xOTA4MjgwNjEwMzBaFw0yOTA4MjUwNjEw",
+				"MzBaMA8xDTALBgNVBAMMBGpybGMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEK",
+				"AoIBAQDAAKii3vMdc+UShCXQGWVsxyp9UET2qd88Wt4JJSFbmqWUIbvW+z+XHVW5",
+				"2KKN9Ynaa1beoD7ssZ4l3zTTjJoVSpphrbbIi0sZvzUfKGHJQmJ/JsdzDI9g2EEJ",
+				"I4PGKLziuKyNfddvf0ywvzb+UBrP/bKVvxiHj4m6znRT3lMhJVrD9Y0/GnfPH5yb",
+				"afG7BtrQBFNXTakwp97fEyU/fklEPhIw+sGZn3kFwuwBNMYg41FVUPtBW4kvTq5t",
+				"JjAd5+fnDtu/LiDiZ1wImX4nYM+rnsV36HXkHnp/5uVkplSt8slkhp+49b7gIzyI",
+				"tRNCKd+YfizF+iE/vXjAFES3sSnTAgMBAAGjgYkwgYYwHQYDVR0OBBYEFIQSj1Th",
+				"z/EYK0upMXVRz44+tRU2MEoGA1UdIwRDMEGAFIQSj1Thz/EYK0upMXVRz44+tRU2",
+				"oROkETAPMQ0wCwYDVQQDDARqcmxjghRgsjnGr4Fr7VFtyx46AuZsGRv+JTAMBgNV",
+				"HRMEBTADAQH/MAsGA1UdDwQEAwIBBjANBgkqhkiG9w0BAQsFAAOCAQEATwpuaCTl",
+				"+EIBlbvDoTurxqKBLLRKcblPCPmqgcwRnFUCZoqnH0vN4U1vikCe28m9c2Tf/aNB",
+				"IFSQe58OEHXULrSPugZ6ocLo8ruMOiaOSRjhX84l3e4s5aPAe+iDeI69MvV4aQXh",
+				"ejpoC06ELY5b25gfFmlN4lXDgsVVMAh1HM+arxQfGr+ovGKcEm+NoXQb2pFwzcs3",
+				"YMBduc0Jp3Q9U0/jUSbudU2Ng5ClUNEG1z6LAG55An0ckIvRBrtwcnOGQa4pa5WA",
+				"8XoxRD4xK9QYLOLYaxQLhMy/A1I8hNhV21fbdv7HI87sCgBekUy/euhfPNwIAb50",
+				"hzWLdeweNIWCbg==",
+				"-----END CERTIFICATE-----",
+				"</ca>"
+			]
+		},
+		{
+			"name":"demo2",
+			"username":"david",
+			"passwd":"654321"
+		}
+	]
+}
