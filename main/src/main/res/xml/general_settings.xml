@@ -8,7 +8,7 @@
     xmlns:tools="http://schemas.android.com/tools">
     <PreferenceCategory android:title="@string/appbehaviour" android:key="app_behaviour">
         <CheckBoxPreference
-                android:defaultValue="true"
+                android:defaultValue="false"
                 android:key="showlogwindow"
                 android:summary="@string/show_log_summary"
                 android:title="@string/show_log_window"/>
