@@ -314,6 +314,7 @@ public class VPNProfileList extends ListFragment implements OnClickListener, Vpn
                 if (vp.mName.equals((sites.getJSONObject(i).getString(getString(R.string.json_config_name))))) {
                     vp.mUsername = sites.getJSONObject(i).getString(getString(R.string.json_config_username));
                     vp.mPassword = sites.getJSONObject(i).getString(getString(R.string.json_config_password));
+                    vp.mUseDefaultRoute = true; // Default route for ipv4
                 }
             }
         } catch (JSONException e) {

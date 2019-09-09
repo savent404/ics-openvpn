@@ -24,6 +24,7 @@
         />
     <PreferenceCategory android:title="@string/ipv4" >
         <CheckBoxPreference
+            android:defaultValue="true"
             android:disableDependentsState="true"
             android:key="useDefaultRoute"
             android:summary="@string/default_route_summary"
