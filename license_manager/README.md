@@ -17,8 +17,8 @@ exit
 
 ## 启动服务
 ``` base
-保存log到当前路径的log文件中
-python3 license_server.py >> log 2>&1 &
+自动保存log到当前路径的log文件中
+nohup ./launch_server.sh &
 ```
 
 # 配置VPN服务器列表

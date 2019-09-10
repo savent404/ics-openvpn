@@ -5,7 +5,7 @@ import random
 
 class license:
     def open(self):
-        self.db = pymysql.connect('localhost', 'root', '123', 'LICENSE_DATABASE')
+        self.db = pymysql.connect('localhost', 'root', 'Root123.', 'LICENSE_DATABASE')
         self.cursor = self.db.cursor()
     def close(self):
         self.db.close()
