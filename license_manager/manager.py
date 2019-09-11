@@ -36,8 +36,9 @@ class license:
         res,__,__,__ = self.search("KEY", key)
 
         if res is not None:
-            return
+            return False
         self.execute("INSERT INTO LICENSE_TABLE(`KEY`,`DAY`) VALUES ('%s',%s)" % (key, days))
+        return True
 
     def delete(self, key):
         self.execute("DELETE FROM LICENSE_TABLE WHERE `KEY` = %s" % key)
@@ -71,7 +72,9 @@ if __name__ == '__main__':
     l = license()
     l.open()
     l.createTableIfNotExists()
-    license = randomString()
-    l.insert(license, sys.argv[1])
+    res = False
+    while res == False:
+        license = randomString()
+        res = l.insert(license, sys.argv[1])
     l.close()
     print ("License:%s, day:%s" % (license, sys.argv[1]))
