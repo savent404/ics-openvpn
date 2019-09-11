@@ -31,6 +31,10 @@ class license_requestHandler(BaseHTTPRequestHandler):
             l = license()
             l.open()
             key,day,__,used = l.search('UUID', "'%s'" % uuid)
+            if key is None:
+                l.close()
+                self.send_error(404, "No matched License, UUID:%d" % uuid)
+                return
             leftTime = datetime.now() - used
             if leftTime.days < 0:
                 l.delete(key)
