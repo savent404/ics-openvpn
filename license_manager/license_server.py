@@ -36,8 +36,6 @@ class license_requestHandler(BaseHTTPRequestHandler):
                 self.send_error(404, "No matched License, UUID:%s" % uuid)
                 return
             leftTime = datetime.now() - used
-            if leftTime.days < 0:
-                l.delete(key)
             l.close()
 
             if (leftTime.days > 0):
