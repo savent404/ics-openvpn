@@ -19,7 +19,7 @@ class license_requestHandler(BaseHTTPRequestHandler):
         querypath = parse.urlsplit(self.path)
         d = parse.parse_qs(querypath.query)
         method = ''.join(d['method'])
-        print ('get url:%s' % querypath.query)
+        print ('get url:%s\tTime:%s' % (querypath.query, localTime()))
         if method == 'ask':
             uuid = ''.join(d['uuid'])
             print('get ASK method, uuid=%s' % uuid)
