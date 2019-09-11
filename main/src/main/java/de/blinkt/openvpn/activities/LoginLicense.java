@@ -156,6 +156,9 @@ public class LoginLicense extends BaseActivity {
         public void run() {
             try {
                 String uuid = getUUID();
+                if (uuid == null)
+                    uuid = "null";
+                
                 URL url;
                 if (this.isAsk) {
                     String u = getString(R.string.license_url) + "?method=ask&uuid=" + uuid;

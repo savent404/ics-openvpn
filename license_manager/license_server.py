@@ -24,6 +24,10 @@ class license_requestHandler(BaseHTTPRequestHandler):
             uuid = ''.join(d['uuid'])
             print('get ASK method, uuid=%s' % uuid)
 
+            if uuid == "null":
+                self.send_error(404, "invalid UUID:%s" % uuid)
+                return
+
             l = license()
             l.open()
             key,day,__,used = l.search('UUID', "'%s'" % uuid)
