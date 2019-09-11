@@ -11,8 +11,9 @@ class license:
     def close(self):
         self.db.close()
 
-    def execute(self, cmd):
-        print("Try to execute: %s" % cmd)
+    def execute(self, cmd, showLog=True):
+        if showLog:
+            print("Try to execute: %s" % cmd)
         try:
             res = self.cursor.execute(cmd)
             self.db.commit()
@@ -29,7 +30,7 @@ class license:
                             `UUID` VARCHAR(32) NULL DEFAULT NULL,
                             `USED` TIMESTAMP NULL DEFAULT NULL,
                             PRIMARY KEY (`KEY`)
-                            );""")
+                            );""", showLog=False)
         self.db.commit()
     def insert(self, key, days):
         res,__,__,__ = self.search("KEY", key)
