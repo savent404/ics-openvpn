@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.TrafficStats;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -31,6 +33,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
@@ -41,6 +44,7 @@ import de.blinkt.openvpn.fragments.VPNProfileList;
 public class LoginLicense extends BaseActivity {
 
     private String editLicense;
+    private boolean mStartUpCheck = true;
     @Override
     protected void onCreate(Bundle saveInstanceState) {
         super.onCreate(saveInstanceState);
@@ -52,8 +56,10 @@ public class LoginLicense extends BaseActivity {
 
         if (checkLicenseLocal()) {
             startMainActivity();
+        } else {
+            checkLicense();
         }
-
+        this.mStartUpCheck = false;
     }
 
     @Override
@@ -100,45 +106,95 @@ public class LoginLicense extends BaseActivity {
 
         if (checkLicenseLocal())
             return;
-        if (this.editLicense.isEmpty()) {
-            messageHandler.sendEmptyMessage(0);
-            return;
+        if (this.editLicense.isEmpty() && !this.mStartUpCheck) {
+                messageHandler.sendEmptyMessage(0);
+                return;
         }
-        new Thread(PostUrl).start();
+        new Thread(new PostUrl(this.mStartUpCheck, this.editLicense)).start();
     }
 
-    private Runnable PostUrl = () -> {
-        try {
-            URL url = new URL(getString(R.string.license_url) + "?license=" + this.editLicense);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setConnectTimeout(3000);
-            connection.setRequestMethod("GET");
-            TrafficStats.setThreadStatsTag(12000);
-            int code = connection.getResponseCode();
+    private String getUUID_M1() {
+            String m_szDevIDShort = "35" + (Build.BOARD.length() % 10) + (Build.BRAND.length() % 10) + (Build.CPU_ABI.length() % 10) + (Build.DEVICE.length() % 10) + (Build.MANUFACTURER.length() % 10) + (Build.MODEL.length() % 10) + (Build.PRODUCT.length() % 10);
+            String serial = null;
+            try
+            {
+                serial = android.os.Build.class.getField("SERIAL").get(null).toString();
 
-            if (code == 200) {
-                InputStream inputStream = connection.getInputStream();
-                ByteArrayOutputStream res = new ByteArrayOutputStream();
-                byte[] buf = new byte[1024];
-                int len;
-                while ((len = inputStream.read(buf, 0, 1024)) > 0) {
-                    res.write(buf, 0, len);
-                }
-                inputStream.close();
-                String response = res.toString();
-                Bundle bundle = new Bundle();
-                Message msg = new Message();
-                bundle.putString("json", response);
-                msg.setData(bundle);
-                messageHandler.sendMessage(msg);
-            } else {
-                messageHandler.sendEmptyMessage(0);
+                // Go ahead and return the serial for api => 9
+                return new UUID(m_szDevIDShort.hashCode(), serial.hashCode()).toString();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            messageHandler.sendEmptyMessage(1);
+            catch (Exception e)
+            {
+                e.printStackTrace();
+                return null;
+            }
+    }
+    private String getUUID_M2() {
+        return Settings.System.getString(getContentResolver(), Settings.System.ANDROID_ID);
+    }
+
+    private String getUUID() {
+        String res = getUUID_M2();
+        if (res != null && !res.isEmpty()) {
+            return res;
         }
-    };
+
+        res = getUUID_M1();
+        if (res != null && !res.isEmpty()) {
+            return res;
+        }
+
+        return null;
+    }
+    private class PostUrl implements Runnable {
+        private boolean isAsk;
+        private String license;
+        PostUrl(boolean isAsk, String license) {
+            this.isAsk = isAsk;
+            this.license = license;
+        }
+        public void run() {
+            try {
+                String uuid = getUUID();
+                URL url;
+                if (this.isAsk) {
+                    String u = getString(R.string.license_url) + "?method=ask&uuid=" + uuid;
+                    url = new URL(u);
+                } else {
+                    String u = getString(R.string.license_url) + "?method=register&license=" + this.license
+                            + "&uuid=" + uuid;
+                    url = new URL(u);
+                }
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setConnectTimeout(5000);
+                connection.setRequestMethod("GET");
+                TrafficStats.setThreadStatsTag(12000);
+                int code = connection.getResponseCode();
+
+                if (code == 200) {
+                    InputStream inputStream = connection.getInputStream();
+                    ByteArrayOutputStream res = new ByteArrayOutputStream();
+                    byte[] buf = new byte[1024];
+                    int len;
+                    while ((len = inputStream.read(buf, 0, 1024)) > 0) {
+                        res.write(buf, 0, len);
+                    }
+                    inputStream.close();
+                    String response = res.toString();
+                    Bundle bundle = new Bundle();
+                    Message msg = new Message();
+                    bundle.putString("json", response);
+                    msg.setData(bundle);
+                    messageHandler.sendMessage(msg);
+                } else {
+                    messageHandler.sendEmptyMessage(0);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                messageHandler.sendEmptyMessage(1);
+            }
+        }
+    }
     private int parserRespon(String response) {
         try {
             JSONObject obj = new JSONObject(response);
