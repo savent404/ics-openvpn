@@ -79,6 +79,9 @@ public class DisconnectVPN extends Activity implements DialogInterface.OnClickLi
             if (mService != null) {
                 try {
                     mService.stopVPN(false);
+                    Intent i = new Intent();
+                    i.putExtra("result", 200);
+                    setResult(4, i);
                 } catch (RemoteException e) {
                     VpnStatus.logException(e);
                 }

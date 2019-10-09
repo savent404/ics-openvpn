@@ -1,28 +1,20 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright (c) 2012-2016 Arne Schwabe
-  ~ Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
--->
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="de.blinkt.openvpn">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <!-- <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /> -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /> -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-
-    <!-- <uses-permission android:name="com.android.vending.BILLING" /> -->
-
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" /> <!-- <uses-permission android:name="com.android.vending.BILLING" /> -->
     <uses-feature
         android:name="android.software.leanback"
         android:required="false" />
     <uses-feature
         android:name="android.hardware.touchscreen"
         android:required="false" />
-
-
 
     <application
         android:name=".core.ICSOpenVPNApplication"
@@ -32,15 +24,46 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app"
         android:supportsRtl="true"
-        android:theme="@style/blinkt"
-        tools:ignore="UnusedAttribute"
-        android:usesCleartextTraffic="true">
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true"
+        tools:ignore="UnusedAttribute">
+        <activity android:name="com.c.vpn.activty.CAboutActivity"></activity>
+        <activity android:name="com.c.vpn.activty.CSettingActivity" />
+        <activity android:name="com.c.vpn.activty.CEditPassWordActivity" />
+        <activity android:name="com.c.vpn.activty.CShopActivity" />
+        <activity android:name="com.c.vpn.activty.CAccountActivity" />
+        <activity android:name="com.c.vpn.activty.CServerListActivity" />
+        <activity android:name="com.c.vpn.activty.CMainActivity" />
+        <activity android:name="com.c.vpn.activty.CForgetPassWordActivity" />
+        <activity android:name="com.c.vpn.activty.CRegActivity" />
 
+        <meta-data
+            android:name="design_width_in_dp"
+            android:value="360" />
+        <meta-data
+            android:name="design_height_in_dp"
+            android:value="640" />
 
+        <activity android:name="com.c.vpn.activty.CLoginActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
-        <meta-data android:name="android.content.APP_RESTRICTIONS"
-                   android:resource="@xml/app_restrictions" />
+        <activity android:name=".activities.LoginLicense" >
+            <!-- <intent-filter>
+             <action android:name="android.intent.action.MAIN" />
 
+             <category android:name="android.intent.category.LAUNCHER" />
+         </intent-filter>-->
+        </activity>
+
+        <meta-data
+            android:name="android.content.APP_RESTRICTIONS"
+            android:resource="@xml/app_restrictions" />
+
+        <activity android:name="com.c.vpn.activty.CBaseActivity" />
         <activity
             android:name=".activities.VPNPreferences"
             android:exported="false"
@@ -58,23 +81,20 @@
             android:label="@string/openvpn_log"
             android:launchMode="singleTask" />
         <activity android:name=".activities.FileSelect" />
-        <activity android:name=".activities.LoginLicense">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity>
+
         <activity
             android:name=".activities.MainActivity"
             tools:ignore="ExportedActivity">
             <intent-filter>
-<!--                <action android:name="android.intent.action.MAIN" />-->
+
+
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
                 <category android:name="android.intent.category.BROWSABLE" />
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+                <!-- <action android:name="android.intent.action.MAIN" /> -->
+                <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
             </intent-filter>
             <intent-filter>
-                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES"/>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
             </intent-filter>
         </activity>
 
@@ -111,7 +131,6 @@
             <meta-data
                 android:name="android.service.quicksettings.ACTIVE_TILE"
                 android:value="false" />
-
         </service>
 
         <activity android:name=".api.GrantPermissionsActivity">
@@ -225,7 +244,6 @@
             android:exported="true"
             android:grantUriPermissions="true"
             tools:ignore="ExportedContentProvider" />
-
         <!--
         <receiver android:name="core.GetRestrictionReceiver">
             <intent-filter>
@@ -241,20 +259,16 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="de.blinkt.openvpn.activities.MainActivity" />
         </activity>
-        <activity
-            android:name=".api.RemoteAction"
-            />
+        <activity android:name=".api.RemoteAction" />
+
         <activity-alias
-            android:exported="true"
             android:name=".api.DisconnectVPN"
-            android:targetActivity=".api.RemoteAction" />
-
-        <activity-alias
             android:exported="true"
-            android:name=".api.ConnectVPN"
             android:targetActivity=".api.RemoteAction" />
-
-
+        <activity-alias
+            android:name=".api.ConnectVPN"
+            android:exported="true"
+            android:targetActivity=".api.RemoteAction" />
     </application>
 
 </manifest>

@@ -794,9 +794,7 @@ public class VPNProfileList extends ListFragment implements OnClickListener, Vpn
     }
 
     private void startVPN(VpnProfile profile) {
-
         getPM().saveProfile(getActivity(), profile);
-
         Intent intent = new Intent(getActivity(), LaunchVPN.class);
         intent.putExtra(LaunchVPN.EXTRA_KEY, profile.getUUID().toString());
         intent.setAction(Intent.ACTION_MAIN);

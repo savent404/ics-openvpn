@@ -51,7 +51,7 @@ public class MainActivity extends BaseActivity {
 
         /* Toolbar and slider should have the same elevation */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            disableToolbarElevation();
+            //disableToolbarElevation();
         }
 
 

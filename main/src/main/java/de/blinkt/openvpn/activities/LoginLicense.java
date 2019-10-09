@@ -51,7 +51,8 @@ public class LoginLicense extends BaseActivity {
         setContentView(R.layout.login_license);
 
         findViewById(R.id.bt_checkLicense).setOnClickListener(view -> {
-            checkLicense();
+            //checkLicense();
+            startMainActivity();
         });
 
         if (checkLicenseLocal()) {

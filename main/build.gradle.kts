@@ -4,8 +4,8 @@
  */
 
 plugins {
-    id ("com.android.application")
-    id ("checkstyle")
+    id("com.android.application")
+    id("checkstyle")
 }
 
 apply {
@@ -21,43 +21,51 @@ checkstyle {
 
 repositories {
     jcenter()
-    maven (url ="https://jitpack.io")
+    maven(url = "https://jitpack.io")
     google()
 }
 
 dependencies {
-    implementation ("com.android.support.constraint:constraint-layout:1.1.3")
-    implementation ("com.android.support:support-annotations:28.0.0")
-    implementation ("com.android.support:cardview-v7:28.0.0")
-    implementation ("com.android.support:recyclerview-v7:28.0.0")
-    implementation ("com.github.PhilJay:MPAndroidChart:v3.0.2")
+    implementation("com.android.support.constraint:constraint-layout:1.1.3")
+    implementation("com.android.support:support-annotations:28.0.0")
+    implementation("com.android.support:cardview-v7:28.0.0")
+    implementation("com.android.support:support-v4:28.0.0")
+
+    implementation("com.android.support:recyclerview-v7:28.0.0")
+    implementation("com.github.PhilJay:MPAndroidChart:v3.0.2")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.11")
+    implementation("com.android.support:appcompat-v7:28.0.0")
+    implementation("com.android.support:design:28.0.0")
+    implementation("com.github.michael-rapp:android-material-dialog:4.3.4")
 
-    testImplementation ("junit:junit:4.12")
-    testImplementation ("org.mockito:mockito-core:2.16.0")
-    testImplementation ("org.robolectric:robolectric:4.1")
+    implementation("com.lzy.net:okgo:3.0.4")
+    implementation("com.alibaba:fastjson:1.1.68.android")
+    implementation("org.greenrobot:eventbus:3.0.0")
+    implementation("me.jessyan:autosize:1.1.2")
+    testImplementation("junit:junit:4.12")
+    testImplementation("org.mockito:mockito-core:2.16.0")
+    testImplementation("org.robolectric:robolectric:4.1")
 }
-
 
 
 val openvpn3SwigFiles = File(buildDir, "generated/source/ovpn3swig/ovpn3")
 
-tasks.register<Exec>("generateOpenVPN3Swig")
-{
-    var swigcmd = "swig"
-    // Workaround for Mac OS X since it otherwise does not find swig and I cannot get
-    // the Exec task to respect the PATH environment :(
-    if (File("/usr/local/bin/swig").exists())
-        swigcmd = "/usr/local/bin/swig"
+tasks.register < Exec > ("generateOpenVPN3Swig")
+        {
+            var swigcmd = "swig"
+            // Workaround for Mac OS X since it otherwise does not find swig and I cannot get
+            // the Exec task to respect the PATH environment :(
+            if (File("/usr/local/bin/swig").exists())
+                swigcmd = "/usr/local/bin/swig"
 
-    doFirst {
-        mkdir(openvpn3SwigFiles)
-    }
-    commandLine(listOf(swigcmd, "-outdir", openvpn3SwigFiles, "-outcurrentdir", "-c++", "-java", "-package", "net.openvpn.ovpn3",
-            "-Isrc/main/cpp/openvpn3/client", "-Isrc/main/cpp/openvpn3/",
-            "-o", "${openvpn3SwigFiles}/ovpncli_wrap.cxx", "-oh", "${openvpn3SwigFiles}/ovpncli_wrap.h",
-            "src/main/cpp/openvpn3/javacli/ovpncli.i"))
-}
+            doFirst {
+                mkdir(openvpn3SwigFiles)
+            }
+            commandLine(listOf(swigcmd, "-outdir", openvpn3SwigFiles, "-outcurrentdir", "-c++", "-java", "-package", "net.openvpn.ovpn3",
+                    "-Isrc/main/cpp/openvpn3/client", "-Isrc/main/cpp/openvpn3/",
+                    "-o", "${openvpn3SwigFiles}/ovpncli_wrap.cxx", "-oh", "${openvpn3SwigFiles}/ovpncli_wrap.h",
+                    "src/main/cpp/openvpn3/javacli/ovpncli.i"))
+        }
 
 android {
     compileSdkVersion(28)
@@ -89,7 +97,7 @@ android {
         }
 
         create("normal") {
-           java.srcDirs("src/ovpn3/java/", openvpn3SwigFiles)
+            java.srcDirs("src/ovpn3/java/", openvpn3SwigFiles)
         }
 
         getByName("debug") {
@@ -126,7 +134,7 @@ android {
         }*/
         create("normal") {
             setDimension("implementation")
-            buildConfigField ("boolean", "openvpn3", "true")
+            buildConfigField("boolean", "openvpn3", "true")
         }
 
     }
