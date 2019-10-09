@@ -44,6 +44,7 @@
                 android:id="@+id/et_account"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text="demo@outlook.com"
                 android:hint="邮箱"/>
 
         </android.support.design.widget.TextInputLayout>
@@ -59,6 +60,7 @@
                 android:id="@+id/tiet_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text="Abc123"
                 android:hint="密码"
                 android:inputType="textPassword"/>
 

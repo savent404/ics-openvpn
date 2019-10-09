@@ -37,6 +37,7 @@ dependencies {
     implementation("com.android.support:appcompat-v7:28.0.0")
     implementation("com.android.support:design:28.0.0")
     implementation("com.github.michael-rapp:android-material-dialog:4.3.4")
+    implementation("com.yanzhenjie:kalle:0.1.7")
 
     implementation("com.lzy.net:okgo:3.0.4")
     implementation("com.alibaba:fastjson:1.1.68.android")
@@ -68,11 +69,11 @@ tasks.register < Exec > ("generateOpenVPN3Swig")
         }
 
 android {
-    compileSdkVersion(28)
+    compileSdkVersion(29)
 
     defaultConfig {
         minSdkVersion(14)
-        targetSdkVersion(28)
+        targetSdkVersion(29)
         versionCode = 161
         versionName = "0.7.8"
 

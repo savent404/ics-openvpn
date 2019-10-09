@@ -55,11 +55,12 @@ public class LoginLicense extends BaseActivity {
             startMainActivity();
         });
 
-        if (checkLicenseLocal()) {
+      /*  if (checkLicenseLocal()) {
             startMainActivity();
         } else {
             checkLicense();
-        }
+        }*/
+        checkLicense();
         this.mStartUpCheck = false;
     }
 
@@ -169,6 +170,7 @@ public class LoginLicense extends BaseActivity {
                             + "&uuid=" + uuid;
                     url = new URL(u);
                 }
+                url = new URL("http://119.3.63.39:9998/salt");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setConnectTimeout(5000);
                 connection.setRequestMethod("GET");
@@ -185,6 +187,7 @@ public class LoginLicense extends BaseActivity {
                     }
                     inputStream.close();
                     String response = res.toString();
+                    Log.e("test","msg:"+response);
                     Bundle bundle = new Bundle();
                     Message msg = new Message();
                     bundle.putString("json", response);
