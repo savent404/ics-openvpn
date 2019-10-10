@@ -63,7 +63,7 @@ public class HttpAsyncRequest extends AsyncTask<String, Void, Void> {
                     callback.completionHandler(true, obj);
                 }
             } else {
-                    callback.completionHandler(true, null);
+                callback.completionHandler(true, null);
             }
         } catch (Exception e) {
             Log.e("Http Async request", e.getMessage());

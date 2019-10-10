@@ -25,6 +25,17 @@
     </android.support.design.widget.AppBarLayout>
 
 
+    <!--<FrameLayout
+        android:id="@+id/fl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>-->
+
+    <fragment
+        android:id="@+id/fragment_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:name="de.blinkt.openvpn.fragments.VPNProfileList"
+         />
 
 
 

@@ -20,12 +20,16 @@ import org.acra.annotation.ReportsCrashes;
 */
 
 import android.os.StrictMode;
+
+import com.c.vpn.model.UserInfoModel;
+
 import de.blinkt.openvpn.BuildConfig;
 import de.blinkt.openvpn.R;
 import de.blinkt.openvpn.api.AppRestrictions;
 
 public class ICSOpenVPNApplication extends Application {
     private StatusListener mStatus;
+    private UserInfoModel userInfoModel;
 
     @Override
     public void onCreate() {
@@ -47,6 +51,15 @@ public class ICSOpenVPNApplication extends Application {
             AppRestrictions.getInstance(this).checkRestrictions(this);
         }
     }
+
+    public void setUserInfo(UserInfoModel model){
+        userInfoModel= model;
+    }
+
+    public UserInfoModel getUserInfoModel(){
+        return userInfoModel;
+    }
+
 
     private void enableStrictModes() {
         StrictMode.VmPolicy policy = new StrictMode.VmPolicy.Builder()
