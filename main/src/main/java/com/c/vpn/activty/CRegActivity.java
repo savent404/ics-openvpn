@@ -16,6 +16,7 @@ import com.c.vpn.model.RegCodeEvent;
 import com.c.vpn.model.RegEvent;
 import com.c.vpn.model.SaltEvent;
 import com.c.vpn.utill.HttpUtil;
+import com.c.vpn.utill.HttpAsyncRequest;
 import com.c.vpn.utill.SaltUtil;
 import com.c.vpn.utill.ToastUtils;
 
@@ -34,6 +35,21 @@ public class CRegActivity extends CBaseActivity {
 
     private Button btnReg;
 
+    public class requestVerifyCode implements HttpAsyncRequest.HttpAsyncCallback {
+
+        public void request (String username) {
+            HttpAsyncRequest task = new HttpAsyncRequest(6000, 60000, this);
+            task.execute(Url.CODE+"?id="+username+"&method=0");
+        }
+        @Override
+        public void completionHandler(Boolean success, JSONObject obj) {
+            if (success) {
+                EventBus.getDefault().post(new RegCodeEvent(obj));
+            } else {
+                EventBus.getDefault().post(new RegCodeEvent(null));
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,18 +74,9 @@ public class CRegActivity extends CBaseActivity {
                     ToastUtils.showToastLong(CRegActivity.this,"邮箱不能为空");
                     return;
                 }
-                showDialog();
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        JSONObject result = HttpUtil.sendGet(Url.CODE+"?id="+username+"&method=0");
-                        if(result != null){
-                            EventBus.getDefault().post(new RegCodeEvent(result));
-                        }else{
-                            dissmissDialog();
-                        }
-                    }
-                }).start();
+                requestVerifyCode task = new requestVerifyCode();
+                task.request(username);
+                tvCode.setText("邮件发送中(60s)");
             }
         });
 
@@ -121,10 +128,14 @@ public class CRegActivity extends CBaseActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onSendCode(RegCodeEvent event) {
         JSONObject obj = event.data;
-        if(obj.getIntValue("code") != 0){
+        if (obj == null) {
+            ToastUtils.showToastLong(this, "发送邮件失败");
+        }
+        else if(obj.getIntValue("code") != 0){
             ToastUtils.showToastLong(this,obj.getString("desc"));
         }else{
             tvCode.setText("已发送至您的邮箱");
+            ToastUtils.showToastLong(this, "发送邮件成功");
         }
     }
 
