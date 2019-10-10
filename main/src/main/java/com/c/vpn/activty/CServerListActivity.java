@@ -17,6 +17,11 @@ public class CServerListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cserver_list);
         initActionBar();
+        initViews();
+    }
+
+    private void initViews() {
+
     }
 
     private void initActionBar() {

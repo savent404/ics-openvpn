@@ -6,4 +6,6 @@ public class Url {
     public static final String LOGIN = BASE_URL+"/account";
     public static final String REGISTER = BASE_URL+"/register";
     public static final String CODE = BASE_URL+"/askforcode";
+    public static final String SERVERLIST = BASE_URL+"/serverlist";
+    public static final String CHANGEPWD = BASE_URL+"/changepassword";
 }

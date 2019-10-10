@@ -23,7 +23,21 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.c.vpn.common.Url;
+import com.c.vpn.model.SaltEvent;
+import com.c.vpn.model.ServerListEvent;
+import com.c.vpn.model.ServerListModel;
+import com.c.vpn.model.UserInfoModel;
+import com.c.vpn.utill.CommmonUtil;
+import com.c.vpn.utill.HttpUtil;
+import com.c.vpn.utill.SaltUtil;
 import com.c.vpn.utill.ToastUtils;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -33,7 +47,9 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeSet;
 
 import de.blinkt.openvpn.LaunchVPN;
@@ -41,6 +57,7 @@ import de.blinkt.openvpn.R;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.activities.ConfigConverter;
 import de.blinkt.openvpn.activities.DisconnectVPN;
+import de.blinkt.openvpn.core.ICSOpenVPNApplication;
 import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.fragments.VPNProfileList;
@@ -56,6 +73,8 @@ public class CMainActivity extends CBaseActivity implements NavigationView.OnNav
     private Button btnConnect;
 
     private boolean isConnect = false;
+    private String id;
+    private String pwd;
 
 
     @Override
@@ -69,16 +88,78 @@ public class CMainActivity extends CBaseActivity implements NavigationView.OnNav
         initToolbar();
         btnConnect = findViewById(R.id.btn_connect);
         findViewById(R.id.btn_connect).setOnClickListener(this);
+        getServerList();
+    }
+
+    private void getServerList() {
+        showDialog();
+        ICSOpenVPNApplication application = (ICSOpenVPNApplication) getApplication();
+        id = CommmonUtil.getID(this);
+        pwd = CommmonUtil.getPassword(this);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                JSONObject result = HttpUtil.sendGet(Url.SALT+"?id="+id);
+                if(result != null){
+                    if(result.getIntValue("code") != 0){
+                        ToastUtils.showOnUIThreadx(CMainActivity.this,result.getString("desc"));
+                    }else{
+                        String salt = result.getString("salt");
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                JSONObject result = HttpUtil.sendGet(Url.SERVERLIST+"?id="+id+"&password="+ SaltUtil.makeSalt(pwd,salt));
+                                if(result != null){
+                                    if(result.getIntValue("code") != 0){
+                                        ToastUtils.showOnUIThreadx(CMainActivity.this,result.getString("desc"));
+                                    }else{
+                                        ICSOpenVPNApplication application = (ICSOpenVPNApplication) getApplication();
+                                        UserInfoModel userInfoModel = application.getUserInfoModel();
+                                        if(userInfoModel.getUser().getExpireDate() != null){
+                                            JSONObject obj = result;
+                                            ServerListModel serverListModel = JSON.parseObject(JSON.toJSONString(obj),ServerListModel.class);
+                                            for(int i=0;i<serverListModel.getSites().size();i++){
+                                                    ServerListModel.SitesBean node = serverListModel.getSites().get(i);
+                                                    List<String> configs = node.getConfig();
+                                                    if(configs != null){
+                                                        StringBuffer config = new StringBuffer();
+                                                        for (String value:configs) {
+                                                            config.append(value+"\n");
+                                                        }
+                                                        File tmpProfile = createTmpProfile(node.getName(), config.toString());
+                                                        startConfigImport(Uri.fromFile(tmpProfile));
+                                                        try {
+                                                            Thread.sleep(4000);
+                                                        } catch (InterruptedException e1) {
+                                                            e1.printStackTrace();
+                                                        }
+                                                    }
+                                            }
+                                        }
+                                        EventBus.getDefault().post(new ServerListEvent(result));
+                                    }
+                                }
+                            }
+                        }).start();
+                    }
+                }
+            }
+        }).start();
+    }
+
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onServerList(ServerListEvent event) {
+        dissmissDialog();
     }
 
     private void initToolbar() {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
         ActionBarDrawerToggle actionBarDrawerToggle=new ActionBarDrawerToggle(this,drawerLayout,toolbar,0,0);
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
-
         navigationView.setNavigationItemSelectedListener(this);
     }
 
@@ -88,7 +169,14 @@ public class CMainActivity extends CBaseActivity implements NavigationView.OnNav
         getMenuInflater().inflate(R.menu.menu_login, menu);
         final MenuItem item = menu.findItem(R.id.action_edit);
         tvTime = (TextView) item.getActionView();
-        tvTime.setText("剩余时间: 09D 10H 15M");
+        ICSOpenVPNApplication application = (ICSOpenVPNApplication) getApplication();
+        String time = application.getUserInfoModel().getUser().getExpireDate();
+        if(time != null){
+            String timeLabel = CommmonUtil.getTimeFormatText(time);
+            tvTime.setText(timeLabel);
+        }else{
+            tvTime.setText("请购买套餐");
+        }
         item.getActionView().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -155,7 +243,16 @@ public class CMainActivity extends CBaseActivity implements NavigationView.OnNav
         MaterialDialog.Builder dialogBuilder = new MaterialDialog.Builder(this);
         dialogBuilder.setTitle("退出");
         dialogBuilder.setMessage("您确定要退出吗？");
-        dialogBuilder.setPositiveButton(android.R.string.ok, null);
+        dialogBuilder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                CommmonUtil.savePassword("",CMainActivity.this);
+                CommmonUtil.saveId("",CMainActivity.this);
+                Intent intent = new Intent(CMainActivity.this,CLoginActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
         dialogBuilder.setNegativeButton(android.R.string.cancel, null);
         MaterialDialog dialog = dialogBuilder.create();
         dialog.show();
@@ -365,11 +462,11 @@ public class CMainActivity extends CBaseActivity implements NavigationView.OnNav
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 231) {
-            String profileUUID = data.getStringExtra(VpnProfile.EXTRA_PROFILEUUID);
+        /*    String profileUUID = data.getStringExtra(VpnProfile.EXTRA_PROFILEUUID);
             Intent intent = new Intent(this, LaunchVPN.class);
             intent.putExtra(LaunchVPN.EXTRA_KEY, profileUUID);
             intent.setAction(Intent.ACTION_MAIN);
-            startActivityForResult(intent,3);
+            startActivityForResult(intent,3);*/
         }else if(requestCode == 3){
             btnConnect.setBackgroundColor(getResources().getColor(R.color.red));
             btnConnect.setText("STOP");
@@ -386,5 +483,17 @@ public class CMainActivity extends CBaseActivity implements NavigationView.OnNav
         startImport.setAction(ConfigConverter.IMPORT_PROFILE);
         startImport.setData(uri);
         startActivityForResult(startImport, 231);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
     }
 }
