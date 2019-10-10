@@ -267,11 +267,13 @@ public class LaunchVPN extends Activity {
     }
 
     void showLogWindow() {
-
-        Intent startLW = new Intent(getBaseContext(), LogWindow.class);
+        Intent i = new Intent();
+        i.putExtra("result", 200);
+        setResult(3, i);
+        finish();
+      /*  Intent startLW = new Intent(getBaseContext(), LogWindow.class);
         startLW.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivity(startLW);
-
+        startActivity(startLW);*/
     }
 
     void showConfigErrorDialog(int vpnok) {
